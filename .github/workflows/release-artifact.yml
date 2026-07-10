@@ -1,0 +1,105 @@
+name: Release Artifact
+
+# Publishes @chronary/n8n-nodes-chronary (n8n community node) to npm and creates
+# a GitHub Release.
+#
+# Provenance posture:
+#   - Publishes via npm OIDC Trusted Publishing — no NPM_TOKEN required. The
+#     `id-token: write` permission + `registry-url` on setup-node are sufficient
+#     once this repo is registered as a Trusted Publisher for
+#     @chronary/n8n-nodes-chronary on npmjs.com.
+#   - npm CLI >= 11.5.1 is required for OIDC trusted publishing; we pin npm to
+#     11.5.1 before publishing (Node 22 ships npm 10.x).
+#   - `npm publish --provenance` records a Sigstore attestation linking the
+#     tarball to this workflow run (this mirror repo is public).
+#
+# Toolchain posture (differs from the pnpm packages):
+#   - This is a standalone npm package (not a pnpm-workspace member). It has no
+#     `workspace:*` deps — `n8n-workflow` is a peerDependency provided by n8n at
+#     runtime. So: plain `npm install` + `npm run build` (tsc + gulp), no
+#     workspace rewrite.
+#
+# Prerequisites (one-time):
+#   1. This mirror repo is public on GitHub.
+#   2. First publish (v0.1.0) was done manually from local (npm has no
+#      "Pending Publisher" flow). After that, register Trusted Publisher on
+#      npmjs.com → @chronary/n8n-nodes-chronary → Settings/Access →
+#      repo `Chronary/n8n-nodes-chronary`, workflow `release-artifact.yml`,
+#      environment blank.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Upgrade npm for OIDC trusted publishing
+        run: |
+          NPM_DIR="$(node -e "process.stdout.write(require('path').resolve(process.execPath,'../../lib/node_modules/npm'))")"
+          curl -fsSL https://registry.npmjs.org/npm/-/npm-11.5.1.tgz -o /tmp/npm.tgz
+          tar -xzf /tmp/npm.tgz --strip-components=1 -C "$NPM_DIR"
+          npm --version
+
+      - name: Validate release manifest
+        id: manifest
+        run: |
+          node -e "const fs=require('fs'); const manifest=JSON.parse(fs.readFileSync('.chronary-release.json','utf8')); if (manifest.artifact !== 'n8n-node') throw new Error('Expected artifact n8n-node'); if (manifest.public_tag !== process.env.GITHUB_REF_NAME) throw new Error('Tag mismatch between manifest and workflow ref'); require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'publish_registry=' + String(Boolean(manifest.publish_registry)) + '\n');"
+          test -f RELEASE_NOTES.txt
+
+      - name: Validate package contents
+        run: |
+          test -f README.md
+          test -f LICENSE
+
+      - name: Install dependencies
+        if: steps.manifest.outputs.publish_registry == 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Build
+        if: steps.manifest.outputs.publish_registry == 'true'
+        run: npm run build
+
+      - name: Pack tarball
+        if: steps.manifest.outputs.publish_registry == 'true'
+        run: npm pack
+
+      - name: Attest build provenance for npm tarball
+        if: steps.manifest.outputs.publish_registry == 'true' && github.event.repository.visibility == 'public'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "*.tgz"
+
+      - name: Publish to npm
+        if: steps.manifest.outputs.publish_registry == 'true'
+        run: npm publish *.tgz --provenance --access public
+
+      - name: Create GitHub Release
+        run: |
+          if [ "${{ steps.manifest.outputs.publish_registry }}" = "true" ]; then
+            gh release create "${GITHUB_REF_NAME}" *.tgz \
+              --title "@chronary/n8n-nodes-chronary ${GITHUB_REF_NAME}" \
+              --notes-file RELEASE_NOTES.txt
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              --title "@chronary/n8n-nodes-chronary ${GITHUB_REF_NAME}" \
+              --notes-file RELEASE_NOTES.txt
+          fi

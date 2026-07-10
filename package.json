@@ -1,0 +1,54 @@
+{
+  "name": "@chronary/n8n-nodes-chronary",
+  "version": "0.1.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "n8n community node for Chronary — an agent-native calendar API. Manage calendars, events, availability, and agents.",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "chronary",
+    "calendar",
+    "scheduling",
+    "ai-agents"
+  ],
+  "license": "Apache-2.0",
+  "homepage": "https://chronary.ai",
+  "author": "Chronary (https://chronary.ai)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Chronary/n8n-nodes-chronary"
+  },
+  "engines": {
+    "node": ">=18.10"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && gulp build:icons",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "prepublishOnly": "tsc && gulp build:icons"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/ChronaryApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Chronary/Chronary.node.js"
+    ]
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "gulp": "^5.0.0",
+    "n8n-workflow": "^1.60.0",
+    "typescript": "^5.5.0"
+  }
+}
