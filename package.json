@@ -1,6 +1,6 @@
 {
   "name": "@chronary/n8n-nodes-chronary",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publishConfig": {
     "access": "public"
   },
@@ -28,6 +28,8 @@
     "build": "tsc && gulp build:icons",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
+    "lint": "eslint credentials nodes package.json",
+    "lintfix": "eslint credentials nodes package.json --fix",
     "prepublishOnly": "tsc && gulp build:icons"
   },
   "files": [
@@ -47,6 +49,9 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.3",
     "gulp": "^5.0.0",
     "n8n-workflow": "^1.60.0",
     "typescript": "^5.5.0"

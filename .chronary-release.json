@@ -1,9 +1,9 @@
 {
   "artifact": "n8n-node",
-  "version": "0.1.1",
-  "public_tag": "v0.1.1",
-  "private_source_sha": "0d21bf6fe6255dc8b0f2086e767c8896b1b3ad60",
-  "private_release_tag": "public-release/20260710.2-0d21bf6",
+  "version": "0.1.2",
+  "public_tag": "v0.1.2",
+  "private_source_sha": "443e8fb19c196e8711b73ce0eb8ee10a74fd439c",
+  "private_release_tag": "public-release/20260710.3-443e8fb",
   "publish_registry": true,
-  "generated_at": "2026-07-10T00:46:28.464Z"
+  "generated_at": "2026-07-10T01:21:15.428Z"
 }

@@ -115,18 +115,18 @@ export class Chronary implements INodeType {
         displayOptions: { show: { resource: ['event'] } },
         options: [
           {
+            name: 'Cancel',
+            value: 'cancel',
+            action: 'Cancel an event',
+            routing: { request: { method: 'DELETE', url: '=/v1/events/{{$parameter.eventId}}' } },
+          },
+          {
             name: 'Create',
             value: 'create',
             action: 'Create an event',
             routing: {
               request: { method: 'POST', url: '=/v1/calendars/{{$parameter.calendarId}}/events' },
             },
-          },
-          {
-            name: 'Cancel',
-            value: 'cancel',
-            action: 'Cancel an event',
-            routing: { request: { method: 'DELETE', url: '=/v1/events/{{$parameter.eventId}}' } },
           },
           {
             name: 'Get',
