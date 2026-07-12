@@ -38,4 +38,4 @@ You need a Chronary API key — an org key (`chr_sk_…`) or an agent-scoped key
 
 ## License
 
-[Apache-2.0](LICENSE)
+[MIT](LICENSE)

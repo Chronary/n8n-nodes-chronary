@@ -17,5 +17,5 @@
     "preserveConstEnums": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["credentials/**/*", "nodes/**/*"]
+  "include": ["index.ts", "credentials/**/*", "nodes/**/*"]
 }
