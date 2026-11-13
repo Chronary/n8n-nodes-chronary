@@ -23,6 +23,7 @@ You need a Chronary API key — an org key (`chr_sk_…`) or an agent-scoped key
 
 **Calendar**
 - Create, Get, Get Many, Update, Delete
+- Create with **Agent ID** set creates a calendar owned by that agent (`POST /v1/agents/{agent_id}/calendars`); leave it empty for an org-level calendar. An agent-scoped key (`chr_ak_…`) must set its own agent's ID.
 
 **Event**
 - Create, Get, Get Many, Update, Cancel

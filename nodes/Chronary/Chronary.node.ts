@@ -1,5 +1,7 @@
 import { INodeType, INodeTypeDescription } from 'n8n-workflow';
 
+import { agentCreatePreSend, calendarCreatePreSend } from './GenericFunctions';
+
 export class Chronary implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'Chronary',
@@ -46,7 +48,11 @@ export class Chronary implements INodeType {
             name: 'Create',
             value: 'create',
             action: 'Create an agent',
-            routing: { request: { method: 'POST', url: '/v1/agents' } },
+            routing: {
+              request: { method: 'POST', url: '/v1/agents' },
+              // The API requires `type`; default it when Additional Fields omits it.
+              send: { preSend: [agentCreatePreSend] },
+            },
           },
           {
             name: 'Get',
@@ -76,7 +82,12 @@ export class Chronary implements INodeType {
             name: 'Create',
             value: 'create',
             action: 'Create a calendar',
-            routing: { request: { method: 'POST', url: '/v1/calendars' } },
+            routing: {
+              // preSend switches the URL to /v1/agents/{agent_id}/calendars when
+              // Agent ID is set, and defaults the required timezone.
+              request: { method: 'POST', url: '/v1/calendars' },
+              send: { preSend: [calendarCreatePreSend] },
+            },
           },
           {
             name: 'Delete',
@@ -303,8 +314,10 @@ export class Chronary implements INodeType {
             name: 'agent_id',
             type: 'string',
             default: '',
-            description: 'Owning agent (agt_…). Optional for org keys.',
-            routing: { send: { type: 'body', property: 'agent_id' } },
+            description:
+              'Create the calendar under this agent (agt_…). Required with an agent-scoped key; leave empty for an org-level calendar.',
+            // No `routing.send`: the agent goes in the URL path
+            // (POST /v1/agents/{agent_id}/calendars), set by calendarCreatePreSend.
           },
         ],
       },

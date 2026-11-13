@@ -1,6 +1,6 @@
 {
   "name": "@chronary/n8n-nodes-chronary",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "publishConfig": {
     "access": "public"
   },
@@ -28,6 +28,7 @@
     "build": "tsc && gulp build:icons",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
+    "test": "tsc -p tsconfig.test.json && node --test dist-test/test/routing.test.js",
     "prepublishOnly": "tsc && gulp build:icons"
   },
   "files": [
