@@ -1,6 +1,6 @@
 {
   "name": "@chronary/n8n-nodes-chronary",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "publishConfig": {
     "access": "public"
   },

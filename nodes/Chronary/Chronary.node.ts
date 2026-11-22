@@ -1,6 +1,6 @@
 import { INodeType, INodeTypeDescription } from 'n8n-workflow';
 
-import { agentCreatePreSend, calendarCreatePreSend } from './GenericFunctions';
+import { agentCreatePreSend, calendarCreatePreSend, idPath } from './GenericFunctions';
 
 export class Chronary implements INodeType {
   description: INodeTypeDescription = {
@@ -58,7 +58,10 @@ export class Chronary implements INodeType {
             name: 'Get',
             value: 'get',
             action: 'Get an agent',
-            routing: { request: { method: 'GET', url: '=/v1/agents/{{$parameter.agentId}}' } },
+            routing: {
+              request: { method: 'GET' },
+              send: { preSend: [idPath('/v1/agents/{agentId}')] },
+            },
           },
           {
             name: 'Get Many',
@@ -93,13 +96,19 @@ export class Chronary implements INodeType {
             name: 'Delete',
             value: 'delete',
             action: 'Delete a calendar',
-            routing: { request: { method: 'DELETE', url: '=/v1/calendars/{{$parameter.calendarId}}' } },
+            routing: {
+              request: { method: 'DELETE' },
+              send: { preSend: [idPath('/v1/calendars/{calendarId}')] },
+            },
           },
           {
             name: 'Get',
             value: 'get',
             action: 'Get a calendar',
-            routing: { request: { method: 'GET', url: '=/v1/calendars/{{$parameter.calendarId}}' } },
+            routing: {
+              request: { method: 'GET' },
+              send: { preSend: [idPath('/v1/calendars/{calendarId}')] },
+            },
           },
           {
             name: 'Get Many',
@@ -111,7 +120,10 @@ export class Chronary implements INodeType {
             name: 'Update',
             value: 'update',
             action: 'Update a calendar',
-            routing: { request: { method: 'PATCH', url: '=/v1/calendars/{{$parameter.calendarId}}' } },
+            routing: {
+              request: { method: 'PATCH' },
+              send: { preSend: [idPath('/v1/calendars/{calendarId}')] },
+            },
           },
         ],
         default: 'getAll',
@@ -129,35 +141,46 @@ export class Chronary implements INodeType {
             name: 'Cancel',
             value: 'cancel',
             action: 'Cancel an event',
-            routing: { request: { method: 'DELETE', url: '=/v1/events/{{$parameter.eventId}}' } },
+            routing: {
+              request: { method: 'DELETE' },
+              send: { preSend: [idPath('/v1/events/{eventId}')] },
+            },
           },
           {
             name: 'Create',
             value: 'create',
             action: 'Create an event',
             routing: {
-              request: { method: 'POST', url: '=/v1/calendars/{{$parameter.calendarId}}/events' },
+              request: { method: 'POST' },
+              send: { preSend: [idPath('/v1/calendars/{calendarId}/events')] },
             },
           },
           {
             name: 'Get',
             value: 'get',
             action: 'Get an event',
-            routing: { request: { method: 'GET', url: '=/v1/events/{{$parameter.eventId}}' } },
+            routing: {
+              request: { method: 'GET' },
+              send: { preSend: [idPath('/v1/events/{eventId}')] },
+            },
           },
           {
             name: 'Get Many',
             value: 'getAll',
             action: 'Get many events',
             routing: {
-              request: { method: 'GET', url: '=/v1/calendars/{{$parameter.calendarId}}/events' },
+              request: { method: 'GET' },
+              send: { preSend: [idPath('/v1/calendars/{calendarId}/events')] },
             },
           },
           {
             name: 'Update',
             value: 'update',
             action: 'Update an event',
-            routing: { request: { method: 'PATCH', url: '=/v1/events/{{$parameter.eventId}}' } },
+            routing: {
+              request: { method: 'PATCH' },
+              send: { preSend: [idPath('/v1/events/{eventId}')] },
+            },
           },
         ],
         default: 'getAll',
@@ -176,7 +199,8 @@ export class Chronary implements INodeType {
             value: 'get',
             action: 'Get agent availability',
             routing: {
-              request: { method: 'GET', url: '=/v1/agents/{{$parameter.agentId}}/availability' },
+              request: { method: 'GET' },
+              send: { preSend: [idPath('/v1/agents/{agentId}/availability')] },
             },
           },
         ],

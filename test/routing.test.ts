@@ -277,3 +277,39 @@ test('availability.get sends its window as query parameters', async () => {
   });
   assert.deepEqual(req.qs, { start: '2026-11-12T00:00:00Z', end: '2026-11-13T00:00:00Z', duration: '1h' });
 });
+
+// ─── IDs stay inside their path segment (#2519) ──────────────────────
+// URL expressions used to interpolate IDs raw, so an Event ID of
+// `../agents/agt_1` turned Event → Cancel into DELETE /v1/agents/agt_1.
+
+test('every ID-bearing operation encodes the ID as one path segment', async () => {
+  const escape = '../keys#x?y';
+  const encoded = '..%2Fkeys%23x%3Fy';
+  const escaped = { agentId: escape, calendarId: escape, eventId: escape };
+  let checked = 0;
+  for (const [resource, operation, method, url] of routes) {
+    if (!/agt_1|cal_1|evt_1/.test(url)) continue;
+    const req = await resolveRequest({ resource, operation, ...escaped });
+    assert.equal(req.method, method, `${resource}.${operation} method`);
+    assert.equal(req.url, url.replace(/agt_1|cal_1|evt_1/g, encoded), `${resource}.${operation} url`);
+    checked++;
+  }
+  assert.equal(checked, 10);
+});
+
+test('an empty, "." or ".." ID is refused before any request', async () => {
+  for (const bad of ['', '.', '..', '  ..  ']) {
+    for (const [resource, operation, , url] of routes) {
+      if (!/agt_1|cal_1|evt_1/.test(url)) continue;
+      await assert.rejects(
+        resolveRequest({ resource, operation, agentId: bad, calendarId: bad, eventId: bad }),
+        /No request was sent/,
+        `${resource}.${operation} with ${JSON.stringify(bad)}`,
+      );
+    }
+  }
+  await assert.rejects(
+    resolveRequest({ resource: 'calendar', operation: 'create', name: 'Ops', calendarCreateFields: { agent_id: '..' } }),
+    /No request was sent/,
+  );
+});
